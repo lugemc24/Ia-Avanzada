@@ -1,0 +1,12 @@
+{
+  "name": "my-secure-ai-chat",
+  "version": "1.0.0",
+  "description": "Chat con OpenAI seguro usando Vercel Serverless Function",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'Deploy on Vercel'"
+  },
+  "dependencies": {
+    "openai": "^4.52.0" // ¡Asegúrate de que esta es la versión más reciente! Consulta npmjs.com
+  }
+}
