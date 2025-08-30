@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Local AI — HTML Interface</title>
+  <title>AI Assistant - Directo a OpenAI (!!! CLAVE EXPUESTA !!!)</title>
   <style>
     :root{--bg:#0f1724;--card:#0b1220;--accent:#06b6d4;--muted:#94a3b8;--text:#e6eef6}
     *{box-sizing:border-box}
@@ -30,7 +30,7 @@
       <div class="logo">AI</div>
       <div>
         <div class="title">AI Assistant</div>
-        <div class="subtitle">Example HTML Interface</div>
+        <div class="subtitle">Interfaz HTML Directa</div>
       </div>
     </header>
     <main>
@@ -47,9 +47,12 @@
   </div>
 
   <script>
-    // --- CONFIGURACIÓN DEL ENDPOINT (AHORA APUNTA A TU FUNCIÓN SIN SERVIDOR EN VERCEL) ---
-    // NO HAY CLAVE API DE OPENAI AQUÍ, YA QUE SE MANEJA EN EL BACKEND
-    const API_ENDPOINT = '/api/chat'; // <-- Esta es la URL de tu función sin servidor en Vercel
+    // --- CONFIGURACIÓN DE LA API DE OPENAI (¡CLAVE EXPUESTA Y RIESGO ALTO!) ---
+    // NO USES ESTO PARA PROYECTOS PÚBLICOS.
+    // Eres responsable de cualquier coste o uso indebido de tu clave.
+
+    const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
+    const API_KEY = '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'; // <--- ¡Pega tu NUEVA clave API aquí!
 
     // Almacena el historial de mensajes para que la IA recuerde el contexto
     const messagesHistory = [{ role: 'system', content: 'Eres un asistente de IA útil.' }];
@@ -84,25 +87,26 @@
       addMessage('AI', 'Pensando...', false); // Mensaje de carga
 
       try {
-        const response = await fetch(API_ENDPOINT, { // <-- Aquí se llama a tu endpoint de Vercel
+        const response = await fetch(API_ENDPOINT, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}` // Clave de autenticación para OpenAI (aquí expuesta)
           },
           body: JSON.stringify({
-            messages: messagesHistory, // Envía el historial completo a tu backend
-            model: 'gpt-4o' // Indica qué modelo quieres que use tu backend
+            messages: messagesHistory, // Envía el historial completo
+            model: 'gpt-4o' // Puedes cambiar a 'gpt-3.5-turbo' si lo prefieres.
           })
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(`Error del servidor: ${response.status} - ${errorData.message || response.statusText}`);
+          // Este error ahora debería ser de OpenAI si la clave es correcta
+          throw new Error(`Error de la API de OpenAI: ${response.status} - ${errorData.message || response.statusText}`);
         }
 
         const data = await response.json();
-        // La respuesta de tu backend debe ser la respuesta de OpenAI
-        const aiResponse = data.choices[0].message.content;
+        const aiResponse = data.choices[0].message.content; // Así se obtiene la respuesta de OpenAI
 
         // Elimina el mensaje de "Pensando..."
         const chat = document.getElementById('chatBox');
@@ -114,13 +118,13 @@
         messagesHistory.push({ role: 'assistant', content: aiResponse }); // Añade la respuesta de la IA al historial
 
       } catch (error) {
-        console.error('Error al comunicarse con la IA:', error);
+        console.error('Error al comunicarse con la IA de OpenAI:', error);
         // Elimina el mensaje de "Pensando..." si todavía está ahí
         const chat = document.getElementById('chatBox');
         if (chat.lastChild && chat.lastChild.textContent.includes('Pensando...')) {
           chat.removeChild(chat.lastChild);
         }
-        addMessage('AI', 'Lo siento, hubo un error al obtener la respuesta de la IA. Por favor, verifica tu conexión o la configuración del servidor. (Detalle: ' + error.message + ')', false);
+        addMessage('AI', 'Lo siento, hubo un error al obtener la respuesta de la IA. Por favor, verifica tu clave API o la conexión. (Detalle: ' + error.message + ')', false);
       } finally {
         // Habilita el input y el botón de nuevo
         input.disabled = false;
